@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>RankWordChartWithTitle.qml</file>
+        <file>ControlPanel.qml</file>
+        <file>RectWrapper.qml</file>
+        <file>Styles.qml</file>
+        <file>CustomProgressBar.qml</file>
+        <file>CustomTextField.qml</file>
+        <file>Backing.qml</file>
+        <file>MainState.qml</file>
+    </qresource>
+</RCC>
