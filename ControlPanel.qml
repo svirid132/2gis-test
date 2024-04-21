@@ -55,19 +55,47 @@ RectWrapper {
                     hoverEnabled: true
                     Layout.fillWidth: true
                     text: 'старт'
-                    Backing { m_color: hovered ? Styles.backing_play_color : 'transparent' }
+                    Backing {
+                        m_color: {
+                            if (hovered || fileController.reading) {
+                                return Styles.backing_play_color
+                            }
+
+                            return 'transparent'
+                        }
+                    }
+                    onClicked: {
+                        if (!fileController.started) {
+                            fileController.read()
+                        }
+                        fileController.resume()
+                    }
                 }
                 Button {
                     hoverEnabled: true
                     Layout.fillWidth: true
                     text: 'стоп'
-                    Backing { m_color: hovered ? Styles.backing_pause_color : 'transparent' }
+                    Backing { m_color: {
+                            if (hovered || (fileController.started && !fileController.reading)) {
+                                return Styles.backing_pause_color
+                            }
+
+                            return 'transparent'
+                        }
+                    }
+                    onClicked: {
+                        fileController.pause()
+                    }
                 }
                 Button {
                     hoverEnabled: true
                     Layout.fillWidth: true
                     text: 'отмена'
                     Backing { m_color: hovered ? Styles.backing_close_color : 'transparent' }
+                    onClicked: {
+                        fileController.cancel()
+                        MainState.setFilename('...')
+                    }
                 }
             }
             RowLayout {

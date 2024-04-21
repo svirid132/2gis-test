@@ -13,30 +13,57 @@ RankWordFile::RankWordFile(QObject *parent)
     qRegisterMetaType<QList<RankWord>>("QList<RankWord>");
 }
 
+void RankWordFile::resume()
+{
+    sync.lock();
+    m_pause = false;
+    sync.unlock();
+    pauseCond.wakeAll();
+}
+
+void RankWordFile::pause()
+{
+    sync.lock();
+    m_pause = true;
+    sync.unlock();
+}
+
 void RankWordFile::read(const QString& fullpath)
 {
     QFile file(fullpath);
     if(!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "error";
         emit error();
         return;
     }
 
     QTextStream in(&file);
 
+    int topWordCount = 15;
     QList<RankWord> rankWordList;
-    rankWordList.reserve(16);
-    for (int i = 0; i < 15; ++i) {
+    rankWordList.reserve(topWordCount + 1);
+    for (int i = 0; i < topWordCount; ++i) {
         rankWordList.append(RankWord());
     }
     QMap<QString, int> word_count;
     while(!in.atEnd()) {
+
+        // пауза
+        sync.lock();
+        if(m_pause) {
+            pauseCond.wait(&sync);
+        }
+        sync.unlock();
+
+        // отмена
+        if ( QThread::currentThread()->isInterruptionRequested() ) {
+            break;
+        }
+
         QString line = in.readLine();
         QStringList fields = line.split(" ");
         for (int i = 0; i < fields.length(); ++i) {
             fields[i] = fields[i].toLower().remove(QRegExp("[.,:!»()…?\"\[\\]]"));
         }
-        QThread::sleep(1);
         fields = fields.filter(QRegExp("^(?!бы|за|не|то|из|под|на|до|во|по|что|он|как|это|мы|все|но|его|так|они|ты|же|меня|мне|когда|ему|от|если|их|еще|ее|ни|уже|вы|там|тут|тебя|тебе|себя)([a-zA-Z]+|[а-яА-Я-]+).$"));
         if (!fields.isEmpty()) {
             QSet<QString> wordSet;
@@ -44,11 +71,10 @@ void RankWordFile::read(const QString& fullpath)
                 word_count[fields[i]] += 1;
                 wordSet.insert(fields[i]);
             }
-            QSetIterator<QString> wordSetI(wordSet);
-            while (wordSetI.hasNext()) {
-                QString word = wordSetI.next();
+            foreach (const QString& word, wordSet) {
                 int count = word_count[word];
-                if (count > rankWordList.at(14).count) {
+                int lastIndex = topWordCount - 1;
+                if (count > rankWordList.at(lastIndex).count) {
                     bool isChangeCount = false;
                     for (int i = 0; i < rankWordList.count(); ++i) {
                         if (rankWordList[i].word == word) {
@@ -63,7 +89,7 @@ void RankWordFile::read(const QString& fullpath)
                         return v1.count > v2.count;
                     });
                     if (!isChangeCount) {
-                        rankWordList.removeAt(15);
+                        rankWordList.removeLast();
                     }
                 }
                 float currentProgress = (float)file.pos() / file.size();

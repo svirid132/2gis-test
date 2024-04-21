@@ -62,10 +62,13 @@ void RankWordChart::paint(QPainter *painter)
     QPen columnPen("transparent");
     painter->setPen(columnPen);
     for (int i = 0; i < columnCount; ++i) {
-        float currentY = numFontMetrics.height() + lineP1.y() - lineP1.y() * rankWords.at(i).count / topRank;
-        QPointF currentP = QPointF(columnLeftRightPadding + columnWidth * i + columnSpacing * i, currentY);
-        QPointF endP = QPointF(currentP.x() + columnWidth, lineP1.y());
-        QRectF column = QRectF(currentP, endP);
+        qreal columnHeight = numFontMetrics.height() + lineP1.y() - lineP1.y() * rankWords.at(i).count / topRank;
+        float startY = std::min(columnHeight, lineP1.y());
+        float startX = columnLeftRightPadding + columnWidth * i + columnSpacing * i;
+        QPointF startP = QPointF(startX, startY);
+        float endX = startP.x() + columnWidth;
+        QPointF endP = QPointF(endX, lineP1.y());
+        QRectF column = QRectF(startP, endP);
         columns.append(column);
     }
     painter->drawRects(columns);
@@ -75,10 +78,15 @@ void RankWordChart::paint(QPainter *painter)
     painter->save();
     painter->setFont(numFont);
     for (int i = 0; i < columnCount; ++i) {
-        float currentY = lineP1.y() - lineP1.y() * rankWords.at(i).count / topRank;
-        QPointF currentP = QPointF(columnLeftRightPadding + columnWidth * i + columnSpacing * i, currentY);
-        QPointF endP = QPointF(currentP.x() + columnWidth, currentY + numFontMetrics.height());
-        QRectF rect = QRectF(currentP, endP);
+        qreal startPos = lineP1.y() - lineP1.y() * rankWords.at(i).count / topRank;
+        qreal limitPos = lineP1.y() - numFontMetrics.height();
+        float startY = std::min(startPos, limitPos);
+        float startX = columnLeftRightPadding + columnWidth * i + columnSpacing * i;
+        QPointF startP = QPointF(startX, startY);
+        float endX = startP.x() + columnWidth;
+        float endY = startY + numFontMetrics.height();
+        QPointF endP = QPointF(endX, endY);
+        QRectF rect = QRectF(startP, endP);
         painter->drawText(rect, Qt::AlignHCenter, QString::number(rankWords.at(i).count));
     }
     painter->restore();
@@ -89,9 +97,9 @@ void RankWordChart::paint(QPainter *painter)
         QTextOption textOption;
         textOption.setWrapMode(QTextOption::WrapAnywhere);
         textOption.setAlignment(Qt::AlignHCenter);
-        QPointF currentP = QPointF(columnLeftRightPadding + columnWidth * i + columnSpacing * i, lineP1.y());
-        QPointF endP = QPointF(currentP.x() + columnWidth, this->height());
-        painter->drawText(QRectF(currentP, endP), rankWords.at(i).word, textOption);
+        QPointF startP = QPointF(columnLeftRightPadding + columnWidth * i + columnSpacing * i, lineP1.y());
+        QPointF endP = QPointF(startP.x() + columnWidth, this->height());
+        painter->drawText(QRectF(startP, endP), rankWords.at(i).word, textOption);
     }
 }
 

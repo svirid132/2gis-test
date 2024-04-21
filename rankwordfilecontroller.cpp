@@ -24,24 +24,36 @@ void RankWordFileController::setFullpath(const QString &newFullpath)
 
 void RankWordFileController::read()
 {
-    RankWordFile* file = new RankWordFile();
-    QThread* thread = new QThread();
-    file->moveToThread(thread);
-    connect(file, &RankWordFile::restResult, this, [this](float progress, QList<RankWord> rankWordList) {
-        // qDebug() << progress;
+    if (m_file != nullptr) {
+        return;
+    }
+
+    m_file = new RankWordFile();
+    m_thread = new QThread();
+    m_file->moveToThread(m_thread);
+    connect(m_file, &RankWordFile::restResult, this, [this](float progress, QList<RankWord> rankWordList) {
         RankWordModel& model = RankWordModel::getInstance();
         model.setRankWords(rankWordList);
         setProgress(progress);
     });
-    connect(file, &RankWordFile::finished, thread, &QThread::quit);
-    connect(file, &RankWordFile::finished, file, []() {
-        qDebug() << "this is qqq";
+    connect(m_file, &RankWordFile::finished, m_file, [this]() {
+        m_file->deleteLater();
+        m_file = nullptr;
+        m_reading = false;
+        emit readingChanged();
+        m_started = false;
+        emit startedChanged();
     });
-    connect(thread, &QThread::finished, thread, []() {
-        qDebug() << "this is finished";
-    });
-    connect(thread, &QThread::started, file, std::bind(&RankWordFile::read, file, "E:/временное/Твен Марк. Приключения Тома Сойера и Гекльберри Финна. Большой сборник - royallib.com.txt"));
-    thread->start();
+    connect(m_file, &RankWordFile::error, m_file, &RankWordFile::finished);
+    connect(m_file, &RankWordFile::finished, m_thread, &QThread::quit);
+    connect(m_thread, &QThread::finished, m_thread, &QThread::deleteLater);
+    connect(m_thread, &QThread::started, m_file, std::bind(&RankWordFile::read, m_file, "E:/временное/Твен Марк. Приключения Тома Сойера и Гекльберри Финна. Большой сборник - royallib.com.txt"));
+    m_thread->start();
+
+    m_reading = true;
+    emit readingChanged();
+    m_started = true;
+    emit startedChanged();
 }
 
 float RankWordFileController::progress() const
@@ -55,4 +67,44 @@ void RankWordFileController::setProgress(float newProgress)
         return;
     m_progress = newProgress;
     emit progressChanged();
+}
+
+void RankWordFileController::resume()
+{
+    if (m_file) {
+        m_file->resume();
+        m_reading = true;
+        emit readingChanged();
+    }
+}
+
+void RankWordFileController::pause()
+{
+    if (m_file) {
+        m_file->pause();
+        m_reading = false;
+        emit readingChanged();
+    }
+}
+
+void RankWordFileController::cancel()
+{
+    if (m_file) {
+        m_thread->requestInterruption();
+        m_file->resume(); // пробуждаем поток, чтобы завершить выполнение (при состоянии стоп)
+    }
+
+    RankWordModel& model = RankWordModel::getInstance();
+    model.setRankWords({});
+    setProgress(0);
+}
+
+bool RankWordFileController::reading() const
+{
+    return m_reading;
+}
+
+bool RankWordFileController::started() const
+{
+    return m_started;
 }

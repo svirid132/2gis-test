@@ -3,7 +3,9 @@
 
 #include "rankwordmodel.h"
 
+#include <QMutex>
 #include <QObject>
+#include <QWaitCondition>
 
 class RankWordFile : public QObject
 {
@@ -11,14 +13,18 @@ class RankWordFile : public QObject
 public:
     explicit RankWordFile(QObject *parent = nullptr);
 
-    Q_INVOKABLE void read(const QString& fullpath);
+    void read(const QString& fullpath);
+    void resume();
+    void pause();
 signals:
     void restResult(float progress, QList<RankWord> rankWordList);
     void finished();
     void error();
 
 private:
-
+    QMutex sync;
+    QWaitCondition pauseCond;
+    bool m_pause = false;
 };
 
 
