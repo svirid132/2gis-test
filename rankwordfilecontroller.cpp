@@ -41,13 +41,15 @@ void RankWordFileController::read()
         m_file = nullptr;
         m_reading = false;
         emit readingChanged();
+    });
+    connect(m_file, &RankWordFile::error, m_file, [this]() {
         m_started = false;
         emit startedChanged();
+        emit m_file->finished();
     });
-    connect(m_file, &RankWordFile::error, m_file, &RankWordFile::finished);
     connect(m_file, &RankWordFile::finished, m_thread, &QThread::quit);
     connect(m_thread, &QThread::finished, m_thread, &QThread::deleteLater);
-    connect(m_thread, &QThread::started, m_file, std::bind(&RankWordFile::read, m_file, "E:/временное/Твен Марк. Приключения Тома Сойера и Гекльберри Финна. Большой сборник - royallib.com.txt"));
+    connect(m_thread, &QThread::started, m_file, std::bind(&RankWordFile::read, m_file, fullpath()));
     m_thread->start();
 
     m_reading = true;
@@ -93,6 +95,9 @@ void RankWordFileController::cancel()
         m_thread->requestInterruption();
         m_file->resume(); // пробуждаем поток, чтобы завершить выполнение (при состоянии стоп)
     }
+
+    m_started = false;
+    emit startedChanged();
 
     RankWordModel& model = RankWordModel::getInstance();
     model.setRankWords({});

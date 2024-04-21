@@ -9,7 +9,9 @@ RectWrapper {
     implicitWidth: 220
     RankWordFileController {
         id: fileController
-        Component.onCompleted: read()
+        fullpath: {
+            return fileTextField.text.replace(/^[\\]/, '/')
+        }
     }
 
     contentItem: Item {
@@ -22,13 +24,7 @@ RectWrapper {
                 selectByMouse: true
                 Layout.fillWidth: true
                 Layout.preferredWidth: 100
-                // enabled: false
-                onActiveFocusChanged: {
-                    if (!activeFocus) {
-                        let filename = text.replace(/^.*[\\/]/, '')
-                        MainState.setFilename(filename)
-                    }
-                }
+                enabled: !fileController.started && !fileController.reading
             }
             D.FileDialog {
                 id: fileDialog
@@ -38,13 +34,12 @@ RectWrapper {
                 onAccepted: {
                     const fullPath = fileDialog.fileUrl.toString().replace(/file:[/][/][/]/, '')
                     fileTextField.text = fullPath
-                    let filename = fullPath.replace(/^.*[\\/]/, '')
-                    MainState.setFilename(filename)
                 }
             }
             Button {
                 Layout.fillWidth: true
                 text: 'Выбрать файл'
+                enabled: !fileController.started && !fileController.reading
                 onClicked: {
                     fileDialog.open()
                 }
@@ -67,6 +62,8 @@ RectWrapper {
                     onClicked: {
                         if (!fileController.started) {
                             fileController.read()
+                            let filename = fileTextField.text.replace(/^.*[\\/]/, '')
+                            MainState.setFilename(filename)
                         }
                         fileController.resume()
                     }
