@@ -46,6 +46,7 @@ void RankWordFileController::read()
         m_started = false;
         emit startedChanged();
         emit m_file->finished();
+        emit this->error();
     });
     connect(m_file, &RankWordFile::finished, m_thread, &QThread::quit);
     connect(m_thread, &QThread::finished, m_thread, &QThread::deleteLater);

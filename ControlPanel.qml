@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Dialogs 1.3 as D
 import Controller 1.0
+import QtQuick.Dialogs 1.3
 
 RectWrapper {
     id: root
@@ -12,6 +13,16 @@ RectWrapper {
         fullpath: {
             return fileTextField.text.replace(/^[\\]/, '/')
         }
+        onError: {
+            errorDialog.open()
+        }
+    }
+
+    MessageDialog {
+        id: errorDialog
+        title: 'Ошибка чтения'
+        text: `Ошибка чтения файла ${MainState.filename}`
+        icon: StandardIcon.Critical
     }
 
     contentItem: Item {

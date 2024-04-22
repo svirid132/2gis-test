@@ -14,6 +14,7 @@ class RankWordFileController : public QObject
     Q_PROPERTY(float progress READ progress WRITE setProgress NOTIFY progressChanged FINAL)
     Q_PROPERTY(bool reading READ reading NOTIFY readingChanged FINAL)
     Q_PROPERTY(bool started READ started NOTIFY startedChanged FINAL)
+    Q_PROPERTY(NOTIFY error FINAL)
 public:
     explicit RankWordFileController(QObject *parent = nullptr);
 
@@ -33,6 +34,7 @@ signals:
     void fullpathChanged();
     void progressChanged();
     void readingChanged();
+    void error();
 
     void startedChanged();
 
