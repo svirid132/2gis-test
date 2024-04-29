@@ -12,4 +12,6 @@ QtObject  {
     property color backing_play_color: '#76FF03'
     property color backing_pause_color: '#FFFF00'
     property color backing_close_color: '#FF5722'
+    property color icon_button_color: '#BB86FC'
+    property color hovered_icon_button_color: '#6200EE'
 }

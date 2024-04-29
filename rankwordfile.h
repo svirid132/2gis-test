@@ -13,7 +13,7 @@ class RankWordFile : public QObject
 public:
     explicit RankWordFile(QObject *parent = nullptr);
 
-    void read(const QString& fullpath);
+    void read(const QString& fullpath, const QStringList& filter);
     void resume();
     void pause();
 signals:

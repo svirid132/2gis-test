@@ -1,6 +1,8 @@
+#include "filterwordmodel.h"
 #include "rankwordchart.h"
 #include "rankwordfile.h"
 #include "rankwordfilecontroller.h"
+#include "reg_exp.h"
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -18,8 +20,22 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<RankWordChart>("UI", 1, 0, "RankWordChart");
     qmlRegisterType<RankWordFileController>("Controller", 1, 0, "RankWordFileController");
+    qmlRegisterSingletonType<FilterWordModel>("Model", 1, 0, "FilterWordModel", [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+
+        FilterWordModel* ins = &FilterWordModel::getInstance();
+        return ins;
+    });
     qmlRegisterSingletonType(QUrl("qrc:/Styles.qml"), "Styles", 1, 0, "Styles");
     qmlRegisterSingletonType(QUrl("qrc:/MainState.qml"), "States", 1, 0, "MainState");
+    qmlRegisterSingletonType<RegExpIns>("Types", 1, 0, "RegExpIns", [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+
+        RegExpIns *ins = new RegExpIns();
+        return ins;
+    });
     QQuickStyle::setStyle("Material");
 
     RankWordFile file;
@@ -27,10 +43,10 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [url](QObject *obj, const QUrl &objUrl) {
-        if (!obj && url == objUrl)
-            QCoreApplication::exit(-1);
-    }, Qt::QueuedConnection);
+        &app, [url](QObject *obj, const QUrl &objUrl) {
+            if (!obj && url == objUrl)
+                QCoreApplication::exit(-1);
+        }, Qt::QueuedConnection);
     engine.load(url);
 
     return app.exec();

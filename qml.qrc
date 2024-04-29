@@ -9,5 +9,9 @@
         <file>CustomTextField.qml</file>
         <file>Backing.qml</file>
         <file>MainState.qml</file>
+        <file>resource/icons/add.svg</file>
+        <file>resource/icons/edit.svg</file>
+        <file>resource/icons/trash.svg</file>
+        <file>IconButton.qml</file>
     </qresource>
 </RCC>

@@ -1,6 +1,7 @@
 #include "rankwordfile.h"
 
 #include "rankwordmodel.h"
+#include "reg_exp.h"
 
 #include <QDebug>
 #include <QFile>
@@ -28,7 +29,7 @@ void RankWordFile::pause()
     sync.unlock();
 }
 
-void RankWordFile::read(const QString& fullpath)
+void RankWordFile::read(const QString& fullpath, const QStringList& filter)
 {
     QFile file(fullpath);
     if(!file.open(QIODevice::ReadOnly)) {
@@ -64,12 +65,12 @@ void RankWordFile::read(const QString& fullpath)
         for (int i = 0; i < fields.length(); ++i) {
             fields[i] = fields[i].toLower().remove(QRegExp("[.,:!»()…?\"\[\\]]"));
         }
-        /////////////////////////////////////////
-        // TODO: можно добавить:
-        // (?!бы|за|не|то|из|под|на|до|во|по|что|он|как|это|мы|все|но|его|так|они|ты|же|меня|мне|когда|ему|от|если|их|еще|ее|ни|уже|вы|там|тут|тебя|тебе|себя)
-        // исключения для часто встречаемых слов
-        /////////////////////////////////////////
-        fields = fields.filter(QRegExp("^([a-zA-Z]+|[а-яА-Я-]+)$"));
+        fields = fields.filter(QRegExp(RegExpIns::m_filter));
+        for (int i = fields.length() - 1; i > 0; --i) {
+            if (filter.contains(fields[i])) {
+                fields.removeAt(i);
+            }
+        }
         if (!fields.isEmpty()) {
             QSet<QString> wordSet;
             for (int i = 0; i < fields.length(); ++i) {

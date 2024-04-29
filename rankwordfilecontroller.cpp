@@ -1,5 +1,6 @@
 #include "rankwordfilecontroller.h"
 
+#include "filterwordmodel.h"
 #include "rankwordfile.h"
 
 #include <QDebug>
@@ -50,7 +51,8 @@ void RankWordFileController::read()
     });
     connect(m_file, &RankWordFile::finished, m_thread, &QThread::quit);
     connect(m_thread, &QThread::finished, m_thread, &QThread::deleteLater);
-    connect(m_thread, &QThread::started, m_file, std::bind(&RankWordFile::read, m_file, fullpath()));
+    FilterWordModel* fitlerWordModel = &FilterWordModel::getInstance();
+    connect(m_thread, &QThread::started, m_file, std::bind(&RankWordFile::read, m_file, fullpath(), fitlerWordModel->stringList()));
     m_thread->start();
 
     m_reading = true;
