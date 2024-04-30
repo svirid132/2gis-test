@@ -1,7 +1,7 @@
 #ifndef RANKWORDFILE_H
 #define RANKWORDFILE_H
 
-#include "rankwordmodel.h"
+#include "RankWordModel.h"
 
 #include <QMutex>
 #include <QObject>

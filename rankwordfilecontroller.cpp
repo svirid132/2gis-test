@@ -1,7 +1,7 @@
-#include "rankwordfilecontroller.h"
+#include "RankWordFileController.h"
 
-#include "filterwordmodel.h"
-#include "rankwordfile.h"
+#include "FilterWordModel.h"
+#include "RankWordFile.h"
 
 #include <QThread>
 

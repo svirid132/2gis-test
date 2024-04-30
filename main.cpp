@@ -1,8 +1,8 @@
-#include "filterwordmodel.h"
-#include "rankwordchart.h"
-#include "rankwordfile.h"
-#include "rankwordfilecontroller.h"
-#include "reg_exp.h"
+#include "FilterWordModel.h"
+#include "RankWordChart.h"
+#include "RankWordFile.h"
+#include "RankWordFileController.h"
+#include "RegExpIns.h"
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>

@@ -1,4 +1,4 @@
-#include "rankwordmodel.h"
+#include "RankWordModel.h"
 
 RankWordModel::RankWordModel() {
 }

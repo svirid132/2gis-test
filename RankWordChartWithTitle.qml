@@ -29,6 +29,9 @@ RectWrapper {
                 width: Math.max(implicitWidth, scrollView.width)
                 implicitHeight: scrollView.availableHeight
                 onClickByColumn: {
+                    if (!RankWordFileController.started && RankWordFileController.progress !== 1){
+                        return
+                    }
                     if (isSelected) {
                         FilterWordModel.remove(word)
                     } else {

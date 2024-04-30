@@ -1,7 +1,7 @@
-#include "rankwordfile.h"
+#include "RankWordFile.h"
 
-#include "rankwordmodel.h"
-#include "reg_exp.h"
+#include "RankWordModel.h"
+#include "RegExpIns.h"
 
 #include <QFile>
 #include <QSet>

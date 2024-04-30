@@ -1,5 +1,5 @@
-#include "filterwordmodel.h"
-#include "reg_exp.h"
+#include "FilterWordModel.h"
+#include "RegExpIns.h"
 
 #include <QFile>
 #include <QTextStream>

@@ -14,13 +14,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        filterwordmodel.cpp \
+        FilterWordModel.cpp \
+        RegExpIns.cpp \
         main.cpp \
-        rankwordchart.cpp \
-        rankwordfile.cpp \
-        rankwordfilecontroller.cpp \
-        rankwordmodel.cpp \
-        reg_exp.cpp
+        RankWordChart.cpp \
+        RankWordFile.cpp \
+        RankWordFileController.cpp \
+        RankWordModel.cpp
 
 RESOURCES += qml.qrc
 
@@ -36,9 +36,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    filterwordmodel.h \
-    rankwordchart.h \
-    rankwordfile.h \
-    rankwordfilecontroller.h \
-    rankwordmodel.h \
-    reg_exp.h
+    FilterWordModel.h \
+    RankWordChart.h \
+    RankWordFile.h \
+    RankWordFileController.h \
+    RankWordModel.h \
+    RegExpIns.h

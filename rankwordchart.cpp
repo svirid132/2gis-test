@@ -1,11 +1,12 @@
-#include "rankwordchart.h"
+#include "RankWordChart.h"
 
-#include <QPainter>
+#include "RankWordModel.h"
 #include <QQmlEngine>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickWindow>
-#include "rankwordmodel.h"
+#include <QPainter>
+#include "RankWordModel.h"
 #include <QMouseEvent>
 
 RankWordChart::RankWordChart()
