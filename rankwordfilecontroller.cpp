@@ -3,7 +3,6 @@
 #include "filterwordmodel.h"
 #include "rankwordfile.h"
 
-#include <QDebug>
 #include <QThread>
 
 RankWordFileController::RankWordFileController(QObject *parent)

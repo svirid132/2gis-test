@@ -1,7 +1,6 @@
 #include "filterwordmodel.h"
 #include "reg_exp.h"
 
-#include <QDebug>
 #include <QFile>
 #include <QTextStream>
 #include <QTextCodec>
@@ -45,6 +44,12 @@ void FilterWordModel::appendNewWord() {
     this->setData(modelInd, newWord);
 }
 
+void FilterWordModel::append(const QString &word)
+{
+    appendNewWord();
+    edit(this->rowCount() - 1, word);
+}
+
 bool FilterWordModel::edit(int row, const QString &word)
 {
     if (word.isEmpty() || stringList().contains(word)) {
@@ -58,6 +63,16 @@ bool FilterWordModel::edit(int row, const QString &word)
 void FilterWordModel::remove(int row)
 {
     this->removeRow(row);
+}
+
+void FilterWordModel::remove(const QString& word) {
+    QStringList list = this->stringList();
+    for (int i = list.length() - 1; i > -1; --i) {
+        if (list[i] == word) {
+            this->remove(i);
+            return;
+        }
+    }
 }
 
 void FilterWordModel::save()

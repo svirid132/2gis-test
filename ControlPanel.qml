@@ -9,12 +9,10 @@ import Types 1.0
 RectWrapper {
     id: root
     implicitWidth: 220
-    RankWordFileController {
-        id: fileController
-        fullpath: {
-            return fileTextField.text.replace(/^[\\]/, '/')
-        }
-        onError: {
+
+    Connections {
+        target: RankWordFileController
+        function onError() {
             errorDialog.open()
         }
     }
@@ -34,7 +32,7 @@ RectWrapper {
             selectByMouse: true
             Layout.fillWidth: true
             Layout.preferredWidth: 100
-            enabled: !fileController.started && !fileController.reading
+            enabled: !RankWordFileController.started && !RankWordFileController.reading
         }
         D.FileDialog {
             id: fileDialog
@@ -49,7 +47,7 @@ RectWrapper {
         Button {
             Layout.fillWidth: true
             text: 'Выбрать файл'
-            enabled: !fileController.started && !fileController.reading
+            enabled: !RankWordFileController.started && !RankWordFileController.reading
             onClicked: {
                 fileDialog.open()
             }
@@ -62,7 +60,7 @@ RectWrapper {
                 text: 'старт'
                 Backing {
                     m_color: {
-                        if (hovered || fileController.reading) {
+                        if (hovered || RankWordFileController.reading) {
                             return Styles.backing_play_color
                         }
 
@@ -70,12 +68,12 @@ RectWrapper {
                     }
                 }
                 onClicked: {
-                    if (!fileController.started) {
-                        fileController.read()
+                    if (!RankWordFileController.started) {
+                        RankWordFileController.read()
                         let filename = fileTextField.text.replace(/^.*[\\/]/, '')
                         MainState.setFilename(filename)
                     }
-                    fileController.resume()
+                    RankWordFileController.resume()
                 }
             }
             Button {
@@ -83,7 +81,7 @@ RectWrapper {
                 Layout.fillWidth: true
                 text: 'стоп'
                 Backing { m_color: {
-                        if (hovered || (fileController.started && !fileController.reading)) {
+                        if (hovered || (RankWordFileController.started && !RankWordFileController.reading)) {
                             return Styles.backing_pause_color
                         }
 
@@ -91,7 +89,7 @@ RectWrapper {
                     }
                 }
                 onClicked: {
-                    fileController.pause()
+                    RankWordFileController.pause()
                 }
             }
             Button {
@@ -100,7 +98,7 @@ RectWrapper {
                 text: 'отмена'
                 Backing { m_color: hovered ? Styles.backing_close_color : 'transparent' }
                 onClicked: {
-                    fileController.cancel()
+                    RankWordFileController.cancel()
                     MainState.setFilename('...')
                 }
             }
@@ -109,10 +107,10 @@ RectWrapper {
             Layout.fillWidth: true
             CustomProgressBar {
                 Layout.fillWidth: true
-                value: fileController.progress
+                value: RankWordFileController.progress
             }
             Label {
-                text: `${Math.trunc(fileController.progress * 100)}%`
+                text: `${Math.trunc(RankWordFileController.progress * 100)}%`
             }
         }
         Item {
@@ -148,7 +146,7 @@ RectWrapper {
                                 id: textEdit
                                 anchors.fill: parent
                                 font.pointSize: 11
-                                verticalAlignment: TextEdit.AlignVCenter
+                                // verticalAlignment: TextEdit.AlignVCenter
                                 validator: RegExpValidator {regExp: RegExp(RegExpIns.filter)}
                                 text: display
                                 selectByMouse: true
@@ -219,5 +217,9 @@ RectWrapper {
 
             }
         }
+    }
+
+    Component.onCompleted: {
+        RankWordFileController.fullpath = Qt.binding(() => fileTextField.text.replace(/^[\\]/, '/'))
     }
 }

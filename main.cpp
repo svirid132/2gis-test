@@ -19,7 +19,13 @@ int main(int argc, char *argv[])
     app.setApplicationName("Amazing Application");
 
     qmlRegisterType<RankWordChart>("UI", 1, 0, "RankWordChart");
-    qmlRegisterType<RankWordFileController>("Controller", 1, 0, "RankWordFileController");
+    qmlRegisterSingletonType<RankWordFileController>("Controller", 1, 0, "RankWordFileController", [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+
+        RankWordFileController* ins = new RankWordFileController();
+        return ins;
+    });
     qmlRegisterSingletonType<FilterWordModel>("Model", 1, 0, "FilterWordModel", [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
         Q_UNUSED(engine)
         Q_UNUSED(scriptEngine)

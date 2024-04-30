@@ -15,8 +15,10 @@ public:
     }
     Q_INVOKABLE void save();
     Q_INVOKABLE void appendNewWord();
+    Q_INVOKABLE void append(const QString& word);
     Q_INVOKABLE bool edit(int row, const QString& word);
     Q_INVOKABLE void remove(int row);
+    Q_INVOKABLE void remove(const QString &word);
 
 private:
     explicit FilterWordModel(QObject *parent = nullptr);

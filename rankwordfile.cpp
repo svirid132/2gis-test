@@ -3,8 +3,8 @@
 #include "rankwordmodel.h"
 #include "reg_exp.h"
 
-#include <QDebug>
 #include <QFile>
+#include <QSet>
 #include <QTextStream>
 #include <QThread>
 
@@ -66,7 +66,7 @@ void RankWordFile::read(const QString& fullpath, const QStringList& filter)
             fields[i] = fields[i].toLower().remove(QRegExp("[.,:!»()…?\"\[\\]]"));
         }
         fields = fields.filter(QRegExp(RegExpIns::m_filter));
-        for (int i = fields.length() - 1; i > 0; --i) {
+        for (int i = fields.length() - 1; i > -1; --i) {
             if (filter.contains(fields[i])) {
                 fields.removeAt(i);
             }

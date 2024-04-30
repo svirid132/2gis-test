@@ -1,20 +1,23 @@
 #include "rankwordchart.h"
 
 #include <QPainter>
-#include <QDebug>
 #include <QQmlEngine>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickWindow>
-#include <RankWordModel.h>
+#include "rankwordmodel.h"
+#include <QMouseEvent>
 
 RankWordChart::RankWordChart()
 {
+    setAcceptHoverEvents(true);
+    setAcceptedMouseButtons(Qt::LeftButton);
+
     setImplicitWidth(1100);
     setImplicitHeight(500);
 
     RankWordModel& model = RankWordModel::getInstance();
-    connect(&model, &RankWordModel::modelReset, this, [this]() { this->update(); });
+    connect(&model, &RankWordModel::modelReset, this, [this]() { clearSelected(), this->update(); });
 }
 
 void RankWordChart::paint(QPainter *painter)
@@ -55,7 +58,7 @@ void RankWordChart::paint(QPainter *painter)
     int columnLeftRightPadding = 10;
     int columnSpacing = 15;
     int columnWidth = (this->width() - columnSpacing * (columnCount - 1) - columnLeftRightPadding * 2) / columnCount;
-    QVector<QRectF> columns;
+    m_columns.clear();
     painter->save();
     QColor columnColor = styles->property("chart_column_color").value<QColor>();
     painter->setBrush(columnColor);
@@ -69,10 +72,37 @@ void RankWordChart::paint(QPainter *painter)
         float endX = startP.x() + columnWidth;
         QPointF endP = QPointF(endX, lineP1.y());
         QRectF column = QRectF(startP, endP);
-        columns.append(column);
+        m_columns.append(column);
     }
-    painter->drawRects(columns);
+    for (int i = 0; i < columnCount; ++i) {
+        if (!m_selected.contains(i) && hoveredIndex != i) {
+            painter->drawRect(m_columns[i]);
+        }
+    }
     painter->restore();
+
+
+    for (int i = 0; i < columnCount; ++i) {
+        if (m_selected.contains(i) && hoveredIndex != i) {
+            painter->save();
+            columnColor = styles->property("selected_chart_column_color").value<QColor>();
+            painter->setBrush(columnColor);
+            columnPen = QPen("transparent");
+            painter->setPen(columnPen);
+            painter->drawRect(m_columns[i]);
+            painter->restore();
+        }
+    }
+
+    if (m_columns.size() > hoveredIndex && hoveredIndex != -1) {
+        painter->save();
+        columnColor = styles->property("hovered_chart_column_color").value<QColor>();
+        painter->setBrush(columnColor);
+        columnPen = QPen("transparent");
+        painter->setPen(columnPen);
+        painter->drawRect(m_columns[hoveredIndex]);
+        painter->restore();
+    }
 
     // количство слов
     painter->save();
@@ -109,4 +139,56 @@ void RankWordChart::componentComplete()
     styles = rootObject->property("styles").value<QObject*>();
     update();
     QQuickPaintedItem::componentComplete();
+}
+
+void RankWordChart::clearSelected()
+{
+    m_selected.clear();
+    update();
+}
+
+void RankWordChart::switchSelectedColumn(int index, bool isSelected)
+{
+    if (isSelected) {
+        m_selected.append(index);
+    } else {
+        m_selected.removeAll(index);
+    }
+    update();
+}
+
+void RankWordChart::hoverMoveEvent(QHoverEvent *event)
+{
+    for(int i = 0; i < m_columns.length(); ++i) {
+        if (m_columns[i].contains(event->posF())) {
+            hoveredIndex = i;
+            update();
+            return;
+        }
+    }
+    hoveredIndex = -1;
+    update();
+}
+
+void RankWordChart::mousePressEvent(QMouseEvent *event)
+{
+    // инцилизация даных модели
+    RankWordModel& model = RankWordModel::getInstance();
+    auto rankWords = model.rankWords();
+
+    for(int i = 0; i < m_columns.length(); ++i) {
+        if (m_columns[i].contains(event->localPos())) {
+            bool isSelected = m_selected.contains(i);
+            emit clickByColumn(i, rankWords.at(i).word, isSelected);
+            update();
+        }
+    }
+}
+
+void RankWordChart::hoverLeaveEvent(QHoverEvent *event)
+{
+    Q_UNUSED(event)
+
+    hoveredIndex = -1;
+    update();
 }

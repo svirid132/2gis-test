@@ -3,6 +3,8 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import UI 1.0
 import States 1.0
+import Controller 1.0
+import Model 1.0
 
 RectWrapper {
     id: root
@@ -26,6 +28,14 @@ RectWrapper {
             RankWordChart {
                 width: Math.max(implicitWidth, scrollView.width)
                 implicitHeight: scrollView.availableHeight
+                onClickByColumn: {
+                    if (isSelected) {
+                        FilterWordModel.remove(word)
+                    } else {
+                        FilterWordModel.append(word)
+                    }
+                    switchSelectedColumn(index, !isSelected)
+                }
             }
         }
     }
